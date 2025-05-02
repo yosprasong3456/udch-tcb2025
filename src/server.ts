@@ -229,6 +229,7 @@ app.get("/testSendPatient", async (req: Request, res: Response) => {
     },
   ];
 
+  console.log(username, password)
   await Promise.all(
     data.map(async (val: any) => {
       const send: any = await sendPatientToApi(val);
