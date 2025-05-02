@@ -17,8 +17,9 @@ const authorizationHeader = `Basic ${encodedCredentials}`;
 // end user api key ------------------------------------------------
 
 const taskPateint = cron.schedule(
-  "30 23 * * *",
+  "25 23 * * *",
   () => {
+    console.log("start patient !");
     cronuploadPateint();
   },
   {
@@ -29,6 +30,7 @@ const taskPateint = cron.schedule(
 const taskCancer = cron.schedule(
   "30 23 * * *",
   () => {
+    console.log("start cancer !");
     cronUploadCancer();
   },
   {
@@ -40,9 +42,14 @@ taskPateint.start();
 taskCancer.start();
 
 const cronuploadPateint = async () => {
-  const patient = await getCancerTcb();
+  const patient = await getPatientTcb();
   if (patient) {
-    await Promise.all(patient.map((val: any) => sendPatientToApi(val)));
+    await Promise.all(
+      patient.map(async (val: any) => {
+        const send = await sendPatientToApi(val);
+        console.log(send.data);
+      })
+    );
     console.log("10");
     return 1;
   } else {
@@ -53,7 +60,12 @@ const cronuploadPateint = async () => {
 const cronUploadCancer = async () => {
   const cancer = await getCancerTcb();
   if (cancer) {
-    await Promise.all(cancer.map((val: any) => sendCancerToApi(val)));
+    await Promise.all(
+      cancer.map(async (val: any) => {
+        const send = await sendCancerToApi(val);
+        console.log(send.data);
+      })
+    );
     console.log("10");
     return 1;
   } else {
@@ -68,7 +80,7 @@ const getPatientTcb = async () => {
 };
 //vw_cancer_tcb
 const getCancerTcb = async () => {
-  // await hisDB.raw('SET NAMES utf8')
+  await hisDB.raw('SET NAMES utf8')
   return hisDB.select("*").from("vw_cancer_tcb");
 };
 
@@ -80,10 +92,9 @@ const sendPatientToApi = async (params: any) => {
 };
 
 const sendCancerToApi = async (params: any) => {
-  console.log(params);
-  // return axios.post(baseUrl + `cancer`, params, {
-  //   headers: { Authorization: authorizationHeader },
-  // });
+  return axios.post(baseUrl + `cancer`, params, {
+    headers: { Authorization: authorizationHeader },
+  });
 };
 
 app.get("/patient", async (req: Request, res: Response) => {
@@ -121,8 +132,8 @@ app.get("/UploadPatient", async (req: Request, res: Response) => {
     await Promise.all(
       patient.map(async (val: any) => {
         const send = await sendPatientToApi(val);
-        if (send) {
-          patient.upload = "✅";
+        if (send.data.status) {
+          val.upload = "✅";
         }
       })
     );
@@ -141,7 +152,12 @@ app.get("/UploadPatient", async (req: Request, res: Response) => {
 app.get("/UploadCancer", async (req: Request, res: Response) => {
   const cancer = await getCancerTcb();
   if (cancer) {
-    await Promise.all(cancer.map((val: any) => sendCancerToApi(val)));
+    await Promise.all(cancer.map(async(val: any) => {
+      let send = await sendCancerToApi(val)
+      if (send.data.status) {
+        val.upload = "✅";
+      }
+    }));
     res.status(200).json({
       message: "success",
       data: "Uploaded Cancer",
@@ -169,6 +185,13 @@ async function testConnection() {
 
 app.get("/test", async (req: Request, res: Response) => {
   const status = await testConnection();
+  res.status(200).json({
+    message: "success",
+    data: status,
+  });
+});
+
+app.get("/testSendPatient", async (req: Request, res: Response) => {
   const data: any = [
     {
       cid: "9-1001-00000-00-5",
@@ -188,7 +211,7 @@ app.get("/test", async (req: Request, res: Response) => {
       telephone_1: "1234567890",
     },
     {
-      cid: "9-1001-00000-00-5",
+      cid: "9-1001-00000-00-4",
       hn: "90001",
       title_code: "1",
       name: "Cacner3",
@@ -206,27 +229,23 @@ app.get("/test", async (req: Request, res: Response) => {
     },
   ];
 
-  await Promise.all(data.map((val: any) => {
-    const send = testSend(val)
-    if(send){
-      val.upload = "✅"
-    }else{
-      val.upload = "❌"
-    }
-  }));
+  await Promise.all(
+    data.map(async (val: any) => {
+      const send: any = await sendPatientToApi(val);
+      console.log(send.data);
+      if (send.data.status) {
+        val.upload = "✅";
+      } else {
+        val.upload = "❌";
+      }
+    })
+  );
 
-  data.upload_data = "✅";
   res.status(200).json({
     message: "success",
-    data: status,
-    data1: data
+    data: data,
   });
 });
-
-const testSend =(params:any)=>{
-if(params.hn === "90003") return 1
-return 0
-}
 
 app.listen(port, () => {
   console.log(`App listening at http://localhost:${port}`);
