@@ -1,0 +1,48 @@
+Arguments: 
+  /usr/local/bin/node /usr/local/bin/yarn add cors
+
+PATH: 
+  /opt/homebrew/bin:/Library/Frameworks/Python.framework/Versions/3.11/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/Library/Apple/usr/bin:/usr/local/go/bin:/opt/homebrew/bin:/Library/Frameworks/Python.framework/Versions/3.11/bin
+
+Yarn version: 
+  1.22.19
+
+Node version: 
+  20.11.1
+
+Platform: 
+  darwin arm64
+
+Trace: 
+  Error: EACCES: permission denied, mkdir '/Users/kimm1/udch-works/new-cancer-anywhere/node_modules/cors'
+
+npm manifest: 
+  {
+    "name": "new-cancer-anywhere",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "build": "npx tsc",
+      "start": "node dist/server.js",
+      "dev": "ts-node-dev src/server.ts"
+    },
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+      "ts-node": "^10.9.2",
+      "typescript": "^5.8.3"
+    },
+    "dependencies": {
+      "@types/express": "^5.0.1",
+      "express": "^5.1.0",
+      "ts-node-dev": "^2.0.0"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

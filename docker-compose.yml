@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  udch-api:
+    image: yosprasong/udch-tcb2025:latest  
+    # สำหรับ linux
+    # platform: linux/arm64 
+    ports:
+      - "3030:3000"          
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - API_USERNAME=
+      - API_PASSWORD=
+      - DB_HOST=
+      - DB_PORT=
+      - DB_USER=
+      - DB_PASSWORD=
+      - DB_DATABASE=
